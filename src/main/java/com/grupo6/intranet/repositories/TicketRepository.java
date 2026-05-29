@@ -14,6 +14,15 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     long countByEstado(Estado estado);
 
+    @Query("SELECT t FROM Ticket t WHERE " +
+           "(:estado IS NULL OR t.estado = :estado) AND " +
+           "(:desde IS NULL OR t.createdAt >= :desde) AND " +
+           "(:hasta IS NULL OR t.createdAt <= :hasta) " +
+           "ORDER BY t.createdAt DESC")
+    List<Ticket> filtrar(@org.springframework.data.repository.query.Param("estado") Estado estado,
+                         @org.springframework.data.repository.query.Param("desde") java.time.LocalDateTime desde,
+                         @org.springframework.data.repository.query.Param("hasta") java.time.LocalDateTime hasta);
+
     @Query("SELECT t.estado, COUNT(t) FROM Ticket t GROUP BY t.estado")
     List<Object[]> contarPorEstado();
 
