@@ -9,11 +9,13 @@ import com.grupo6.intranet.repositories.CategoriaRepository;
 import com.grupo6.intranet.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class ArticuloService {
 
     @Autowired
@@ -48,6 +50,7 @@ public class ArticuloService {
         return articuloRepository.findTop10ByActivoTrueOrderByVistasDesc();
     }
 
+    @Transactional
     public Optional<Articulo> buscarPorId(Long id) {
         return articuloRepository.findById(id).map(a -> {
             a.setVistas(a.getVistas() + 1);
@@ -55,6 +58,7 @@ public class ArticuloService {
         });
     }
 
+    @Transactional
     public Articulo crear(ArticuloRequest req, Long autorId) {
         Usuario autor = usuarioRepository.findById(autorId)
                 .orElseThrow(() -> new RuntimeException("Autor no encontrado"));
@@ -69,6 +73,7 @@ public class ArticuloService {
         return articuloRepository.save(articulo);
     }
 
+    @Transactional
     public Optional<Articulo> actualizar(Long id, ArticuloRequest req) {
         return articuloRepository.findById(id).map(articulo -> {
             articulo.setTitulo(req.getTitulo());
@@ -79,6 +84,7 @@ public class ArticuloService {
         });
     }
 
+    @Transactional
     public Optional<Articulo> activar(Long id) {
         return articuloRepository.findById(id).map(a -> {
             a.setActivo(true);
@@ -86,6 +92,7 @@ public class ArticuloService {
         });
     }
 
+    @Transactional
     public Optional<Articulo> desactivar(Long id) {
         return articuloRepository.findById(id).map(a -> {
             a.setActivo(false);

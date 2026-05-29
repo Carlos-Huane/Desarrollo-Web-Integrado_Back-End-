@@ -6,10 +6,12 @@ import com.grupo6.intranet.repositories.CategoriaRepository;
 import com.grupo6.intranet.repositories.SubcategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class CategoriaService {
 
     @Autowired
@@ -30,10 +32,12 @@ public class CategoriaService {
         return categoriaRepository.findById(id);
     }
 
+    @Transactional
     public Categoria crear(Categoria categoria) {
         return categoriaRepository.save(categoria);
     }
 
+    @Transactional
     public Optional<Categoria> actualizar(Long id, Categoria datos) {
         return categoriaRepository.findById(id).map(c -> {
             c.setNombre(datos.getNombre());
@@ -42,6 +46,7 @@ public class CategoriaService {
         });
     }
 
+    @Transactional
     public Optional<Categoria> cambiarEstado(Long id, boolean activo) {
         return categoriaRepository.findById(id).map(c -> {
             c.setActivo(activo);
@@ -53,6 +58,7 @@ public class CategoriaService {
         return subcategoriaRepository.findByCategoriaId(categoriaId);
     }
 
+    @Transactional
     public Subcategoria crearSubcategoria(Subcategoria sub) {
         return subcategoriaRepository.save(sub);
     }
