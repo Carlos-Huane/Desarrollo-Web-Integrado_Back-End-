@@ -6,10 +6,12 @@ import com.grupo6.intranet.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class UsuarioService {
 
     @Autowired
@@ -38,11 +40,13 @@ public class UsuarioService {
         return usuarioRepository.findByEmail(email);
     }
 
+    @Transactional
     public Usuario crear(Usuario usuario) {
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         return usuarioRepository.save(usuario);
     }
 
+    @Transactional
     public Optional<Usuario> actualizar(Long id, Usuario datosNuevos) {
         return usuarioRepository.findById(id).map(u -> {
             u.setNombre(datosNuevos.getNombre());
@@ -53,6 +57,7 @@ public class UsuarioService {
         });
     }
 
+    @Transactional
     public Optional<Usuario> cambiarEstado(Long id, boolean activo) {
         return usuarioRepository.findById(id).map(u -> {
             u.setActivo(activo);

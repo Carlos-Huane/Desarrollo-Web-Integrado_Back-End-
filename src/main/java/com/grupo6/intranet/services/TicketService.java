@@ -6,11 +6,13 @@ import com.grupo6.intranet.models.*;
 import com.grupo6.intranet.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class TicketService {
 
     @Autowired
@@ -31,6 +33,7 @@ public class TicketService {
     @Autowired
     private EmailService emailService;
 
+    @Transactional
     public Ticket crear(TicketRequest req, Long clienteId) {
         Usuario cliente = usuarioRepository.findById(clienteId)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
@@ -72,6 +75,7 @@ public class TicketService {
         return ticketRepository.findById(id);
     }
 
+    @Transactional
     public Optional<Ticket> cambiarEstado(Long ticketId, CambioEstadoRequest req, Long usuarioId) {
         return ticketRepository.findById(ticketId).map(ticket -> {
             Usuario usuario = usuarioRepository.findById(usuarioId)
