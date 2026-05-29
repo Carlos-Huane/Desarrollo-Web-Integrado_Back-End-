@@ -55,6 +55,9 @@ public class Ticket {
     @Column(name = "fecha_resolucion")
     private LocalDateTime fechaResolucion;
 
+    @Column(name = "alerta_sla_enviada", nullable = false)
+    private Boolean alertaSlaEnviada = false;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

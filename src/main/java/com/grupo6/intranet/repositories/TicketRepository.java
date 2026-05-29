@@ -12,6 +12,11 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByEstado(Estado estado);
     List<Ticket> findByTecnicoIdAndEstadoNot(Long tecnicoId, Estado estado);
 
+    @Query("SELECT t FROM Ticket t WHERE t.estado IN (com.grupo6.intranet.models.Estado.NUEVO, " +
+           "com.grupo6.intranet.models.Estado.EN_ATENCION, com.grupo6.intranet.models.Estado.ESCALADO) " +
+           "AND t.alertaSlaEnviada = false")
+    List<Ticket> findAbiertosSinAlerta();
+
     long countByEstado(Estado estado);
 
     @Query("SELECT t FROM Ticket t WHERE " +
