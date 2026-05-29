@@ -49,21 +49,28 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
            "ORDER BY COUNT(t) DESC")
     List<Object[]> contarResueltosPorTecnico();
 
-    @Query("SELECT AVG(FUNCTION('TIMESTAMPDIFF', HOUR, t.createdAt, t.fechaResolucion)) " +
-           "FROM Ticket t WHERE t.fechaResolucion IS NOT NULL")
-    Double tiempoPromedioResolucionHoras();
+    @Query(value = "SELECT AVG(TIMESTAMPDIFF(HOUR, t.created_at, t.fecha_resolucion)) " +
+           "FROM tickets t WHERE t.fecha_resolucion IS NOT NULL", nativeQuery = true)
+    Number tiempoPromedioResolucionHorasRaw();
 
-    @Query("SELECT t.categoria.id, t.categoria.nombre, COUNT(t), " +
-           "AVG(FUNCTION('TIMESTAMPDIFF', HOUR, t.createdAt, t.fechaResolucion)) " +
-           "FROM Ticket t WHERE t.fechaResolucion IS NOT NULL " +
-           "GROUP BY t.categoria.id, t.categoria.nombre " +
-           "ORDER BY COUNT(t) DESC")
+    default Double tiempoPromedioResolucionHoras() {
+        Number n = tiempoPromedioResolucionHorasRaw();
+        return n != null ? n.doubleValue() : 0.0;
+    }
+
+    @Query(value = "SELECT c.id, c.nombre, COUNT(t.id), " +
+           "AVG(TIMESTAMPDIFF(HOUR, t.created_at, t.fecha_resolucion)) " +
+           "FROM tickets t JOIN categorias c ON c.id = t.categoria_id " +
+           "WHERE t.fecha_resolucion IS NOT NULL " +
+           "GROUP BY c.id, c.nombre " +
+           "ORDER BY COUNT(t.id) DESC", nativeQuery = true)
     List<Object[]> rankingCategoriasConTiempo();
 
-    @Query("SELECT t.tecnico.id, t.tecnico.nombre, t.tecnico.apellido, COUNT(t), " +
-           "AVG(FUNCTION('TIMESTAMPDIFF', HOUR, t.createdAt, t.fechaResolucion)) " +
-           "FROM Ticket t WHERE t.tecnico IS NOT NULL AND t.fechaResolucion IS NOT NULL " +
-           "GROUP BY t.tecnico.id, t.tecnico.nombre, t.tecnico.apellido " +
-           "ORDER BY COUNT(t) DESC")
+    @Query(value = "SELECT u.id, u.nombre, u.apellido, COUNT(t.id), " +
+           "AVG(TIMESTAMPDIFF(HOUR, t.created_at, t.fecha_resolucion)) " +
+           "FROM tickets t JOIN usuarios u ON u.id = t.tecnico_id " +
+           "WHERE t.tecnico_id IS NOT NULL AND t.fecha_resolucion IS NOT NULL " +
+           "GROUP BY u.id, u.nombre, u.apellido " +
+           "ORDER BY COUNT(t.id) DESC", nativeQuery = true)
     List<Object[]> rankingTecnicosConTiempo();
 }

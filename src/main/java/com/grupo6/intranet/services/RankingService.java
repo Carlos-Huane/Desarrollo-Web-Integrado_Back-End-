@@ -18,9 +18,9 @@ public class RankingService {
     public List<CategoriaRankingDto> rankingCategorias() {
         return ticketRepository.rankingCategoriasConTiempo().stream()
                 .map(row -> new CategoriaRankingDto(
-                        (Long) row[0],
+                        ((Number) row[0]).longValue(),
                         (String) row[1],
-                        (Long) row[2],
+                        ((Number) row[2]).longValue(),
                         row[3] != null ? ((Number) row[3]).doubleValue() : 0.0))
                 .collect(Collectors.toList());
     }
@@ -32,9 +32,9 @@ public class RankingService {
     public List<TecnicoRankingDto> rankingTecnicos() {
         return ticketRepository.rankingTecnicosConTiempo().stream()
                 .map(row -> new TecnicoRankingDto(
-                        (Long) row[0],
+                        ((Number) row[0]).longValue(),
                         row[1] + " " + row[2],
-                        (Long) row[3],
+                        ((Number) row[3]).longValue(),
                         row[4] != null ? ((Number) row[4]).doubleValue() : 0.0))
                 .collect(Collectors.toList());
     }
