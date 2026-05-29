@@ -17,6 +17,7 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired private TicketRepository ticketRepo;
     @Autowired private HistorialTicketRepository historialRepo;
     @Autowired private SlaConfigRepository slaRepo;
+    @Autowired private ArticuloRepository articuloRepo;
     @Autowired private PasswordEncoder passwordEncoder;
 
     @Override
@@ -106,6 +107,23 @@ public class DataInitializer implements CommandLineRunner {
         historial(t6, tec1,   Estado.NUEVO,      Estado.EN_ATENCION,  "Revisando permisos del módulo RRHH");
         historial(t6, tec1,   Estado.EN_ATENCION, Estado.RESUELTO,    "Permisos restaurados tras la actualización");
         historial(t6, cli3,   Estado.RESUELTO,   Estado.CERRADO,      "Cliente confirmó la resolución");
+
+        // ── ARTÍCULOS BASE DE CONOCIMIENTO (5 registros) ──────
+        articulo("¿Cómo conectarse a la VPN corporativa?",
+                "1. Abrir el cliente FortiClient\n2. Seleccionar perfil 'TelecoPeru-VPN'\n3. Ingresar usuario corporativo y contraseña\n4. Si el código MFA es requerido, revisar la app Authenticator\n\nSi falla la conexión, reiniciar el adaptador de red y reintentar.",
+                red, tec1);
+        articulo("Pasos para reiniciar el PC cuando no enciende",
+                "Antes de generar un ticket, probar lo siguiente:\n1. Desconectar cable de poder por 30 segundos\n2. Verificar que el monitor esté encendido y conectado\n3. Probar otro tomacorriente\n4. Mantener presionado el botón de encendido 10 segundos\n\nSi nada funciona, levantar ticket en la categoría Hardware.",
+                hardware, tec1);
+        articulo("Cómo limpiar caché del sistema de facturación",
+                "Cuando FacturaSoft muestre lentitud o errores 500:\n1. Cerrar la aplicación completamente\n2. Borrar carpeta %APPDATA%/FacturaSoft/cache\n3. Reabrir la aplicación\n\nSi el problema persiste reportar a Soporte indicando código de error.",
+                software, tec2);
+        articulo("Recuperar correos no recibidos",
+                "Si dejas de recibir correos:\n1. Revisar carpeta Spam y Correos no deseados\n2. Verificar reglas de filtrado en Outlook\n3. Confirmar cuota de buzón disponible\n4. Si la cuota está al 100%, limpiar correos pesados o pedir aumento\n\nSi todo está bien, levantar ticket de Correo.",
+                correo, tec2);
+        articulo("Buenas prácticas de contraseñas seguras",
+                "Para mantener tu cuenta segura:\n- Mínimo 12 caracteres con mayúsculas, números y símbolos\n- No reutilizar contraseñas entre sistemas\n- Cambiar cada 90 días\n- Usar el gestor de contraseñas corporativo\n- No compartir credenciales por correo o chat",
+                seguridad, admin1);
     }
 
     private Usuario usuario(String nombre, String apellido, String email, String pass, String tel, Rol rol) {
@@ -160,6 +178,17 @@ public class DataInitializer implements CommandLineRunner {
             t.setFechaResolucion(LocalDateTime.now().minusDays(1));
         }
         return ticketRepo.save(t);
+    }
+
+    private void articulo(String titulo, String contenido, Categoria categoria, Usuario autor) {
+        Articulo a = new Articulo();
+        a.setTitulo(titulo);
+        a.setContenido(contenido);
+        a.setCategoria(categoria);
+        a.setAutor(autor);
+        a.setVistas(0L);
+        a.setActivo(true);
+        articuloRepo.save(a);
     }
 
     private void historial(Ticket ticket, Usuario usuario, Estado anterior, Estado nuevo, String comentario) {
