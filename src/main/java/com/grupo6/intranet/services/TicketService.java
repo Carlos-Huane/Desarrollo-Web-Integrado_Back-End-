@@ -28,6 +28,9 @@ public class TicketService {
     @Autowired
     private SubcategoriaRepository subcategoriaRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public Ticket crear(TicketRequest req, Long clienteId) {
         Usuario cliente = usuarioRepository.findById(clienteId)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
@@ -49,6 +52,7 @@ public class TicketService {
 
         Ticket guardado = ticketRepository.save(ticket);
         registrarHistorial(guardado, cliente, null, Estado.NUEVO, "Ticket creado");
+        emailService.notificarTicketCreado(guardado);
         return guardado;
     }
 
@@ -74,11 +78,16 @@ public class TicketService {
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
             Estado estadoAnterior = ticket.getEstado();
+            Long tecnicoAnteriorId = ticket.getTecnico() != null ? ticket.getTecnico().getId() : null;
             ticket.setEstado(req.getEstadoNuevo());
 
+            boolean tecnicoCambio = false;
             if (req.getTecnicoId() != null) {
-                usuarioRepository.findById(req.getTecnicoId())
-                        .ifPresent(ticket::setTecnico);
+                Optional<Usuario> nuevoTecnico = usuarioRepository.findById(req.getTecnicoId());
+                if (nuevoTecnico.isPresent() && !req.getTecnicoId().equals(tecnicoAnteriorId)) {
+                    ticket.setTecnico(nuevoTecnico.get());
+                    tecnicoCambio = true;
+                }
             }
 
             if (req.getEstadoNuevo() == Estado.RESUELTO) {
@@ -87,6 +96,11 @@ public class TicketService {
 
             Ticket actualizado = ticketRepository.save(ticket);
             registrarHistorial(actualizado, usuario, estadoAnterior, req.getEstadoNuevo(), req.getComentario());
+
+            if (tecnicoCambio) {
+                emailService.notificarAsignacionTecnico(actualizado);
+            }
+            emailService.notificarCambioEstado(actualizado, estadoAnterior, req.getEstadoNuevo(), req.getComentario());
             return actualizado;
         });
     }
