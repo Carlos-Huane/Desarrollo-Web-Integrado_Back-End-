@@ -45,4 +45,11 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
            "GROUP BY t.categoria.id, t.categoria.nombre " +
            "ORDER BY COUNT(t) DESC")
     List<Object[]> rankingCategoriasConTiempo();
+
+    @Query("SELECT t.tecnico.id, t.tecnico.nombre, t.tecnico.apellido, COUNT(t), " +
+           "AVG(FUNCTION('TIMESTAMPDIFF', HOUR, t.createdAt, t.fechaResolucion)) " +
+           "FROM Ticket t WHERE t.tecnico IS NOT NULL AND t.fechaResolucion IS NOT NULL " +
+           "GROUP BY t.tecnico.id, t.tecnico.nombre, t.tecnico.apellido " +
+           "ORDER BY COUNT(t) DESC")
+    List<Object[]> rankingTecnicosConTiempo();
 }
