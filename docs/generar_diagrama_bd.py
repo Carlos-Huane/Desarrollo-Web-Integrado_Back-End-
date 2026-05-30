@@ -108,6 +108,19 @@ TABLAS = {
             ("autor_id", "BIGINT", "FK"),
         ],
     },
+    "comentarios_ticket": {
+        "pos": (9.6, 0.2),
+        "size": (4.5, 2.2),
+        "color": "#FFDAB9",
+        "cols": [
+            ("id", "BIGINT", "PK"),
+            ("mensaje", "TEXT", ""),
+            ("interno", "BOOLEAN", ""),
+            ("created_at", "DATETIME", ""),
+            ("ticket_id", "BIGINT", "FK"),
+            ("autor_id", "BIGINT", "FK"),
+        ],
+    },
 }
 
 RELACIONES = [
@@ -120,6 +133,13 @@ RELACIONES = [
     ("historial_tickets", "usuario_id", "usuarios"),
     ("articulos", "categoria_id", "categorias"),
     ("articulos", "autor_id", "usuarios"),
+    ("comentarios_ticket", "ticket_id", "tickets"),
+    ("comentarios_ticket", "autor_id", "usuarios"),
+]
+
+# Relaciones lógicas (no FK formal, pero los datos se cruzan por columna)
+RELACIONES_LOGICAS = [
+    ("sla_config", "prioridad", "tickets", "prioridad"),
 ]
 
 
@@ -193,6 +213,40 @@ def dibujar_relacion(ax, origen, col_fk, destino):
     ax.add_patch(arrow)
 
 
+def dibujar_relacion_logica(ax, origen, col_origen, destino, col_destino):
+    info_o = TABLAS[origen]
+    info_d = TABLAS[destino]
+    ox_l, ox_r, oy = centro_columna(info_o, col_origen)
+    dx_l, dx_r, dy = centro_columna(info_d, col_destino)
+
+    centro_o = (info_o["pos"][0] + info_o["size"][0] / 2,
+                info_o["pos"][1] + info_o["size"][1] / 2)
+    centro_d = (info_d["pos"][0] + info_d["size"][0] / 2,
+                info_d["pos"][1] + info_d["size"][1] / 2)
+
+    if centro_d[0] > centro_o[0]:
+        x_o = ox_r
+        x_d = dx_l
+    else:
+        x_o = ox_l
+        x_d = dx_r
+
+    arrow = FancyArrowPatch(
+        (x_o, oy), (x_d, dy),
+        connectionstyle="arc3,rad=-0.20",
+        arrowstyle="-", mutation_scale=10,
+        linewidth=1.2, color="#888888", linestyle="dashed", zorder=1)
+    ax.add_patch(arrow)
+
+    mid_x = (x_o + x_d) / 2
+    mid_y = (oy + dy) / 2 + 0.25
+    ax.text(mid_x, mid_y, "lógica",
+            ha="center", va="center", fontsize=7,
+            color="#666666", style="italic",
+            bbox=dict(boxstyle="round,pad=0.15", facecolor="white",
+                      edgecolor="#cccccc", linewidth=0.6), zorder=2)
+
+
 def main():
     fig, ax = plt.subplots(figsize=(16, 11))
     ax.set_xlim(0, 14.5)
@@ -209,10 +263,14 @@ def main():
     for origen, col_fk, destino in RELACIONES:
         dibujar_relacion(ax, origen, col_fk, destino)
 
+    for origen, col_o, destino, col_d in RELACIONES_LOGICAS:
+        dibujar_relacion_logica(ax, origen, col_o, destino, col_d)
+
     leyenda_x = 0.3
     leyenda_y = 0.0
     ax.text(leyenda_x, leyenda_y,
-            "Leyenda:  [PK] Primary Key   [FK] Foreign Key   [UQ] Unique",
+            "Leyenda:  [PK] Primary Key   [FK] Foreign Key   [UQ] Unique   "
+            "—► relación FK   ╌╌ relación lógica (sin FK formal)",
             fontsize=9, fontfamily="monospace", color="#333")
 
     plt.tight_layout()

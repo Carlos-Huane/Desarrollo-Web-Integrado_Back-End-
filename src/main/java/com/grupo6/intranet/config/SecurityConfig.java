@@ -48,6 +48,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/tickets/**").hasAnyRole("ADMIN", "TECNICO")
                         .requestMatchers("/api/tickets/**").hasAnyRole("ADMIN", "TECNICO", "CLIENTE")
 
+                        // ── Comentarios Ticket ────────────────────────────
+                        .requestMatchers(HttpMethod.DELETE, "/api/comentarios/**").hasRole("ADMIN")
+                        .requestMatchers("/api/comentarios/**").hasAnyRole("ADMIN", "TECNICO", "CLIENTE")
+
                         // ── Artículos KB ──────────────────────────────────
                         .requestMatchers(HttpMethod.GET, "/api/articulos/**").authenticated()
                         .requestMatchers("/api/articulos/**").hasAnyRole("ADMIN", "TECNICO")
