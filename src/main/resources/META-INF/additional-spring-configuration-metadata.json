@@ -1,0 +1,27 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Clave secreta usada para firmar tokens JWT (HS256)."
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "Tiempo de expiración del token JWT en milisegundos.",
+      "defaultValue": 86400000
+    },
+    {
+      "name": "intranet.mail.from",
+      "type": "java.lang.String",
+      "description": "Dirección remitente usada en correos enviados por el sistema.",
+      "defaultValue": "intranet@telecoperu.com"
+    },
+    {
+      "name": "intranet.mail.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Activa el envio real de correos vía JavaMailSender. Si esta en false, solo se loggea.",
+      "defaultValue": false
+    }
+  ]
+}
