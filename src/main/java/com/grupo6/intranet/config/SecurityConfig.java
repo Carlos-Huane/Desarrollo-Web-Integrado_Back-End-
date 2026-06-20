@@ -55,6 +55,7 @@ public class SecurityConfig {
 
                         // ── Tickets ───────────────────────────────────────
                         .requestMatchers(HttpMethod.GET, "/api/tickets").hasAnyRole("ADMIN", "TECNICO")
+                        .requestMatchers("/api/tickets/tecnico/**").hasAnyRole("ADMIN", "TECNICO")
                         .requestMatchers(HttpMethod.PATCH, "/api/tickets/**").hasAnyRole("ADMIN", "TECNICO")
                         .requestMatchers("/api/tickets/**").hasAnyRole("ADMIN", "TECNICO", "CLIENTE")
 
@@ -75,6 +76,18 @@ public class SecurityConfig {
                         .requestMatchers("/api/sla/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(401);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"status\":401,\"error\":\"No autenticado\"}");
+                        })
+                        .accessDeniedHandler((req, res, e) -> {
+                            res.setStatus(403);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"status\":403,\"error\":\"Acceso denegado\"}");
+                        })
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
