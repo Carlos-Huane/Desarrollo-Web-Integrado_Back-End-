@@ -62,4 +62,21 @@ public class CategoriaService {
     public Subcategoria crearSubcategoria(Subcategoria sub) {
         return subcategoriaRepository.save(sub);
     }
+
+    @Transactional
+    public Optional<Subcategoria> actualizarSubcategoria(Long id, Subcategoria datos) {
+        return subcategoriaRepository.findById(id).map(s -> {
+            s.setNombre(datos.getNombre());
+            s.setDescripcion(datos.getDescripcion());
+            return subcategoriaRepository.save(s);
+        });
+    }
+
+    @Transactional
+    public Optional<Subcategoria> cambiarEstadoSubcategoria(Long id, boolean activo) {
+        return subcategoriaRepository.findById(id).map(s -> {
+            s.setActivo(activo);
+            return subcategoriaRepository.save(s);
+        });
+    }
 }

@@ -41,6 +41,7 @@ public class AuthController {
                 .map(u -> {
                     String token = jwtUtil.generarToken(u.getEmail(), u.getRol().name());
                     return ResponseEntity.ok(new LoginResponse(
+                            u.getId(),
                             token,
                             u.getEmail(),
                             u.getRol().name(),
@@ -92,6 +93,7 @@ public class AuthController {
         String token = jwtUtil.generarToken(creado.getEmail(), creado.getRol().name());
 
         return ResponseEntity.ok(new LoginResponse(
+                creado.getId(),
                 token,
                 creado.getEmail(),
                 creado.getRol().name(),
