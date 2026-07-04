@@ -1,5 +1,6 @@
 package com.grupo6.intranet.services;
 
+import com.grupo6.intranet.dtos.SlaUpdateRequest;
 import com.grupo6.intranet.models.Prioridad;
 import com.grupo6.intranet.models.SlaConfig;
 import com.grupo6.intranet.repositories.SlaConfigRepository;
@@ -22,7 +23,7 @@ public class SlaConfigService {
         return slaConfigRepository.findByPrioridad(prioridad);
     }
 
-    public Optional<SlaConfig> actualizar(Long id, SlaConfig datos) {
+    public Optional<SlaConfig> actualizar(Long id, SlaUpdateRequest datos) {
         return slaConfigRepository.findById(id).map(sla -> {
             sla.setTiempoRespuestaHoras(datos.getTiempoRespuestaHoras());
             sla.setTiempoResolucionHoras(datos.getTiempoResolucionHoras());

@@ -68,4 +68,27 @@ public class CategoriaController {
     public Subcategoria crearSubcategoria(@RequestBody Subcategoria sub) {
         return categoriaService.crearSubcategoria(sub);
     }
+
+    @PutMapping("/subcategorias/{id}")
+    public ResponseEntity<Subcategoria> actualizarSubcategoria(
+            @PathVariable Long id,
+            @RequestBody Subcategoria datos) {
+        return categoriaService.actualizarSubcategoria(id, datos)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/subcategorias/{id}/activar")
+    public ResponseEntity<Subcategoria> activarSubcategoria(@PathVariable Long id) {
+        return categoriaService.cambiarEstadoSubcategoria(id, true)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/subcategorias/{id}/desactivar")
+    public ResponseEntity<Subcategoria> desactivarSubcategoria(@PathVariable Long id) {
+        return categoriaService.cambiarEstadoSubcategoria(id, false)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
