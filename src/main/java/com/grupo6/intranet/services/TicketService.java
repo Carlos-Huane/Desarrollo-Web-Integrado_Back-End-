@@ -83,9 +83,8 @@ public class TicketService {
 
             Estado estadoAnterior = ticket.getEstado();
             Long tecnicoAnteriorId = ticket.getTecnico() != null ? ticket.getTecnico().getId() : null;
-            ticket.setEstado(req.getEstadoNuevo());
-
             boolean tecnicoCambio = false;
+
             if (req.getTecnicoId() != null) {
                 Optional<Usuario> nuevoTecnico = usuarioRepository.findById(req.getTecnicoId());
                 if (nuevoTecnico.isPresent() && !req.getTecnicoId().equals(tecnicoAnteriorId)) {
@@ -94,17 +93,28 @@ public class TicketService {
                 }
             }
 
-            if (req.getEstadoNuevo() == Estado.RESUELTO) {
+            Estado nuevoEstado = req.getEstadoNuevo();
+            if (tecnicoCambio && (nuevoEstado == null || nuevoEstado == Estado.NUEVO)) {
+                nuevoEstado = Estado.EN_ATENCION;
+            }
+            if (nuevoEstado == null) {
+                nuevoEstado = Estado.NUEVO;
+            }
+            ticket.setEstado(nuevoEstado);
+
+            if (nuevoEstado == Estado.RESUELTO) {
                 ticket.setFechaResolucion(LocalDateTime.now());
+            } else {
+                ticket.setFechaResolucion(null);
             }
 
             Ticket actualizado = ticketRepository.save(ticket);
-            registrarHistorial(actualizado, usuario, estadoAnterior, req.getEstadoNuevo(), req.getComentario());
+            registrarHistorial(actualizado, usuario, estadoAnterior, nuevoEstado, req.getComentario());
 
             if (tecnicoCambio) {
                 emailService.notificarAsignacionTecnico(actualizado);
             }
-            emailService.notificarCambioEstado(actualizado, estadoAnterior, req.getEstadoNuevo(), req.getComentario());
+            emailService.notificarCambioEstado(actualizado, estadoAnterior, nuevoEstado, req.getComentario());
             return actualizado;
         });
     }
